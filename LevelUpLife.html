@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Level Up Life – Tokenized Habit Tracker</title>
+  <meta name="description" content="Turn your streaks into assets, not just stats. Level Up Life mints Proof-of-Habit NFTs on Algorand with streak rarity and leaderboards."/>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%236c5ce7'/%3E%3Ctext x='50%25' y='56%25' text-anchor='middle' font-size='36' fill='white' font-family='Arial'%3EL%3C/text%3E%3C/svg%3E" />
+  <!-- Font Awesome for socials -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root{
+      --bg:#0a0a0f;--txt:#f5f5f5;--card:#17171f;
+      --bgL:#f9f9fb;--txtL:#101114;--cardL:#ffffff;
+      --primary:#6c5ce7;--accent:#00cec9;--gold:#f9ca24;
+      --muted:#8b8ca3;
+      --radius:14px;--shadow:0 10px 30px rgba(0,0,0,.25);
+      --max:1100px;
+    }
+    *{box-sizing:border-box}html,body{margin:0;padding:0}
+    body{font-family:Inter,Segoe UI,Roboto,system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;scroll-behavior:smooth}
+    body.light{background:var(--bgL);color:var(--txtL)}
+    a{color:inherit}
+    /* Header */
+    header.topbar{position:sticky;top:0;z-index:50;background:rgba(10,10,15,.7);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.06)}
+    body.light header.topbar{background:rgba(249,249,251,.7);border-color:rgba(16,17,20,.08)}
+    .nav{max-width:var(--max);margin:auto;display:flex;gap:16px;align-items:center;justify-content:space-between;padding:12px 18px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px}
+    .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent)}
+    .links a{margin-left:18px;text-decoration:none;color:var(--muted)}
+    .links a.active,.links a:hover{color:var(--accent)}
+    /* Theme toggle */
+    .toggle{border:0;background:var(--primary);color:#fff;border-radius:999px;padding:8px 12px;cursor:pointer}
+    /* Hero */
+    .hero{position:relative;isolation:isolate;background:radial-gradient(1200px 600px at 50% -10%,rgba(108,92,231,.35),transparent),linear-gradient(135deg,#181826 0%,#0c0c12 60%);
+      padding:120px 18px 80px; text-align:center; overflow:hidden}
+    body.light .hero{background:radial-gradient(1200px 600px at 50% -10%,rgba(108,92,231,.18),transparent),linear-gradient(135deg,#ffffff 0%,#eef2ff 60%)}
+    .hero-inner{max-width:860px;margin:auto}
+    .kicker{color:var(--accent);font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+    h1{font-size:clamp(32px,6vw,54px);margin:.25em 0 .3em}
+    .sub{max-width:720px;margin:0 auto 22px;color:var(--muted)}
+    .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:10px;border:1px solid transparent;text-decoration:none;font-weight:700;cursor:pointer;transition:.2s}
+    .btn.primary{background:var(--primary);color:#fff}
+    .btn.primary:hover{filter:brightness(1.05);transform:translateY(-1px)}
+    .btn.ghost{border-color:rgba(255,255,255,.18)}
+    body.light .btn.ghost{border-color:rgba(0,0,0,.12)}
+    /* Floating card */
+    .float-card{position:absolute;inset:auto 8% -30px auto;width:180px;height:245px;border-radius:16px;background:linear-gradient(135deg,#7cf7e7,#b49bff);box-shadow:var(--shadow);animation:float 6s ease-in-out infinite;opacity:.9}
+    @keyframes float{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-16px) rotate(-6deg)}}
+    /* Sections */
+    section{max-width:var(--max);margin:70px auto;padding:0 18px}
+    h2{font-size:clamp(24px,4vw,32px);margin:0 0 14px;color:var(--accent)}
+    .lead{color:var(--muted);margin-bottom:18px}
+    .card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+    body.light .card{background:var(--cardL);border-color:rgba(0,0,0,.06)}
+    .grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .icon{font-size:22px}
+    /* Badges */
+    .badges{display:flex;flex-wrap:wrap;gap:10px}
+    .badge{background:var(--primary);color:#fff;border-radius:999px;padding:8px 14px;font-weight:700}
+    /* Timeline */
+    .timeline{border-left:2px solid var(--primary);padding-left:16px;margin-top:6px}
+    .t-item{margin:14px 0;opacity:0;transform:translateX(-14px);transition:.5s}
+    .t-item.show{opacity:1;transform:none}
+    .t-item h3{margin:0 0 6px;color:var(--primary)}
+    /* Demo */
+    .demo-wrap{display:grid;gap:18px;grid-template-columns:1.1fr .9fr}
+    @media (max-width:850px){.demo-wrap{grid-template-columns:1fr}}
+    .progress{height:12px;background:rgba(255,255,255,.12);border-radius:10px;overflow:hidden}
+    body.light .progress{background:rgba(0,0,0,.08)}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--gold),#ffd36a)}
+    .leader{list-style:none;margin:0;padding:0}
+    .leader li{display:flex;justify-content:space-between;border-bottom:1px dashed rgba(255,255,255,.12);padding:8px 0}
+    body.light .leader li{border-color:rgba(0,0,0,.1)}
+    .fakeNFT{border:2px dashed var(--accent);border-radius:12px;text-align:center;padding:12px;font-weight:800}
+    /* Pitch deck */
+    #pitchdeck{text-align:center}
+    .slides{position:relative;min-height:180px}
+    .slide{display:none;background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:26px}
+    body.light .slide{background:var(--cardL);border-color:rgba(0,0,0,.06)}
+    .slide.active{display:block;animation:fade .4s}
+    .pd-ctrl{margin-top:10px;display:flex;gap:8px;justify-content:center}
+    .pd-ctrl button{border:0;background:var(--primary);color:#fff;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer}
+    @keyframes fade{from{opacity:0}to{opacity:1}}
+    /* Reveal animations */
+    .reveal{opacity:0;transform:translateY(16px);transition:.6s}
+    .reveal.show{opacity:1;transform:none}
+    /* Footer */
+    footer{margin-top:80px;padding:28px 18px;border-top:1px solid rgba(255,255,255,.08);text-align:center;color:var(--muted)}
+    body.light footer{border-color:rgba(0,0,0,.08)}
+    .socials{display:flex;gap:14px;justify-content:center;margin-top:10px}
+    .socials a{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.16)}
+    body.light .socials a{border-color:rgba(0,0,0,.12)}
+    .socials a:hover{border-color:var(--accent)}
+  </style>
+</head>
+<body>
+  <!-- Topbar -->
+  <header class="topbar">
+    <nav class="nav">
+      <div class="brand"><span class="dot"></span> <a href="https://roarforme.com">LEVEL-UP Life</a></div>
+      <div class="links">
+        <a href="#solution">Solution</a>
+        <a href="#why">Why Algorand</a>
+        <a href="#demo">Demo</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#pitchdeck">Pitch</a>
+        <a href="#beta">Join</a>
+      </div>
+      <button class="toggle" id="themeBtn">🌙 Dark</button>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" id="home" aria-label="Hero">
+    <div class="hero-inner">
+      <div class="kicker">Level Up Life - Tokenized Habit Tracker</div>
+      <h1>Turn your streaks into assets, not just stats.</h1>
+      <p class="sub">Mint Proof-of-Habit NFTs, unlock streak rarity, and climb wallet-based leaderboards — built on Algorand’s fast, low-fee, carbon-neutral blockchain.</p>
+      <div class="cta">
+        <a class="btn primary" href="#demo">⚡ Try the Demo</a>
+        <a class="btn ghost" href="#pitchdeck">🎤 View Pitch</a>
+      </div>
+    </div>
+    <div class="float-card" aria-hidden="true"></div>
+  </section>
+
+  <!-- Problem & Solution -->
+  <section id="solution" class="reveal">
+    <h2>⚡ Our Solution</h2>
+    <p class="lead">Don’t just track habits — <b>own</b> them. Every completion mints a proof; streaks evolve from Bronze → Silver → Gold → Legendary.</p>
+    <div class="grid">
+      <div class="card"><div class="icon">🎖️</div><b>Proof-of-Habit NFTs</b><br/>Immutable receipts of discipline on Algorand.</div>
+      <div class="card"><div class="icon">🔥</div><b>Streak Rarity</b><br/>Consistency upgrades visual/metadata rarity.</div>
+      <div class="card"><div class="icon">🏆</div><b>Leaderboards</b><br/>Wallet-linked rankings to fuel motivation.</div>
+      <div class="card"><div class="icon">🔌</div><b>API</b><br/>Plug-and-play habit tracking for apps & orgs.</div>
+    </div>
+  </section>
+
+  <!-- Why Algorand -->
+  <section id="why" class="reveal">
+    <h2>🌍 Why Algorand?</h2>
+    <div class="badges">
+      <span class="badge">⚡ Instant Finality</span>
+      <span class="badge">💸 Near-Zero Fees</span>
+      <span class="badge">🌱 Carbon-Negative</span>
+      <span class="badge">🔗 ASA Flexibility</span>
+    </div>
+    <p class="lead" style="margin-top:10px">Perfect for frequent, low-friction habit mints and upgrades.</p>
+  </section>
+
+  <!-- Demo Playground -->
+  <section id="demo" class="reveal">
+    <h2>🕹️ Demo Playground</h2>
+    <div class="demo-wrap">
+      <div class="card">
+        <h3 style="margin-top:0">Mint a Habit</h3>
+        <p class="lead">Click to simulate completing a goal and minting a Proof-of-Habit NFT. Watch rarity progress and the leaderboard update.</p>
+        <div class="fakeNFT" id="nftBox">Click “Complete Habit” to mint your first NFT</div>
+        <div class="progress" style="margin:12px 0"><div class="bar" id="rarityBar" style="width:0%"></div></div>
+        <p id="rarityText">Rarity: —</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+          <button class="btn primary" id="mintBtn">🎯 Complete Habit</button>
+          <button class="btn ghost" id="resetBtn">↺ Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0">Leaderboard</h3>
+        <ul class="leader" id="board">
+          <li><span>0xAlice</span><span>45-day 🔥</span></li>
+          <li><span>0xBob</span><span>32-day ⭐</span></li>
+          <li><span>0xYou</span><span>0-day 🌱</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roadmap -->
+  <section id="roadmap" class="reveal">
+    <h2>🌌 Roadmap (Levels)</h2>
+    <div class="card timeline">
+      <div class="t-item"><h3>🔥 Level 1 — MVP</h3><div>Habit NFTs + streak rarity + leaderboard (testnet)</div></div>
+      <div class="t-item"><h3>⭐ Level 2 — Guilds</h3><div>Group challenges, duels, seasons</div></div>
+      <div class="t-item"><h3>🔌 Level 3 — API</h3><div>B2B integrations, SDKs, webhooks</div></div>
+      <div class="t-item"><h3>🛒 Level 4 — Marketplace</h3><div>Rewards, perks, habit economy</div></div>
+    </div>
+  </section>
+
+  <!-- Mini Pitch Deck -->
+  <section id="pitchdeck" class="reveal">
+    <h2>🎤 Mini Pitch Deck</h2>
+    <div class="slides">
+      <div class="slide active"><h3>🚨 Problem</h3><p>Streaks break, progress vanishes, and nothing is verifiable across apps.</p></div>
+      <div class="slide"><h3>💡 Solution</h3><p>Level Up Life mints Proof-of-Habit NFTs that evolve with consistency.</p></div>
+      <div class="slide"><h3>🌍 Why Algorand</h3><p>Fast, low-fee, green, secure — ideal for everyday habit minting.</p></div>
+      <div class="slide"><h3>🕹️ Demo</h3><p>Mint, upgrade rarity, climb leaderboards — frictionless on testnet.</p></div>
+      <div class="slide"><h3>🚀 Roadmap</h3><p>MVP → Guilds → API → Marketplace. Consistency becomes currency.</p></div>
+    </div>
+    <div class="pd-ctrl">
+      <button id="prev">◀</button>
+      <button id="next">▶</button>
+      <button id="auto">▶ Auto</button>
+    </div>
+  </section>
+
+  <!-- Beta -->
+  <section id="beta" class="reveal">
+    <h2>🏁 Join the Beta League</h2>
+     <p class="lead">100 early slots. Get updates and early access.</p>
+    <form action="https://formsubmit.co/georgej99@gmail.com" method="POST" class="card" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <input type="email" name="email" placeholder="you@domain.com" required
+             style="flex:1;min-width:220px;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:transparent;color:inherit"/>
+      <button class="btn primary" type="submit">Sign Up</button>
+    </form>
+  </section>
+
+  <!-- Footer (social only) -->
+  <footer>
+    <div>© 2025 Level Up Life — Built for Algorand Hackathon</div>
+    
+      <div class="socials" aria-label="Social links">
+      <a href="https://www.linkedin.com/in/george-jacob-peediyakal" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://github.com/Georgejacobpl" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+      <a href="https://x.com/georgej_99" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+      <a href="mailto:georgej99@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+    </div>
+            <p>&copy; 2025 All rights reserved.</p>
+        </div>
+    </div>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const themeBtn=document.getElementById('themeBtn');
+    const setTheme=(mode)=>{document.body.classList.toggle('light',mode==='light');themeBtn.textContent=mode==='light'?'🌚 Dark':'🌙 Light'};
+    themeBtn.addEventListener('click',()=>setTheme(document.body.classList.contains('light')?'dark':'light'));
+
+    // Scrollspy
+    const links=[...document.querySelectorAll('.links a')];
+    const sections=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    const spy=()=>{const y=window.scrollY+90;sections.forEach((s,i)=>{const a=links[i];if(s.offsetTop<=y&&s.offsetTop+s.offsetHeight>y){a.classList.add('active')}else a.classList.remove('active')})};
+    window.addEventListener('scroll',spy); spy();
+
+    // Reveal on scroll
+    const io=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show')})},{threshold:.15});
+    document.querySelectorAll('.reveal,.t-item').forEach(el=>io.observe(el));
+
+    // Demo logic
+    const mintBtn=document.getElementById('mintBtn');
+    const resetBtn=document.getElementById('resetBtn');
+    const bar=document.getElementById('rarityBar');
+    const rarityText=document.getElementById('rarityText');
+    const nftBox=document.getElementById('nftBox');
+    const board=document.getElementById('board');
+    let progress=0, yourDays=0;
+
+    function updateRarity(){
+      const levels=['—','Bronze','Silver','Gold','Legendary'];
+      const msgs=[
+        '✅ Bronze Habit NFT Minted!',
+        '⚡ Silver Habit NFT Unlocked!',
+        '🔥 Gold Habit NFT Achieved!',
+        '🌟 Legendary Habit NFT Forged!'
+      ];
+      const stage=Math.min(Math.floor(progress/25),4);
+      rarityText.textContent=`Rarity: ${levels[stage]}`;
+      if(stage>0) nftBox.textContent=msgs[stage-1];
+      bar.style.width=`${progress}%`;
+      // update leaderboard "you"
+      const items=[...board.children];
+      const you=items.find(li=>li.textContent.includes('0xYou'));
+      yourDays=Math.round(progress/5); // 20 mints → 100% → 20 days (sim)
+      if(you) you.lastElementChild.textContent=`${yourDays}-day ${stage>=3?'🔥':stage==2?'⭐':'🌱'}`;
+      // simple re-sort
+      const points=li=>parseInt(li.lastElementChild.textContent)||0;
+      items.sort((a,b)=>points(b)-points(a)).forEach(li=>board.appendChild(li));
+    }
+    mintBtn.addEventListener('click',()=>{progress=Math.min(100,progress+20);updateRarity()});
+    resetBtn.addEventListener('click',()=>{progress=0;yourDays=0;bar.style.width='0%';rarityText.textContent='Rarity: —';nftBox.textContent='Click “Complete Habit” to mint your first NFT';const you=[...board.children].find(li=>li.textContent.includes('0xYou'));if(you) you.lastElementChild.textContent='0-day 🌱';});
+
+    // Pitch deck controls
+    const slides=[...document.querySelectorAll('#pitchdeck .slide')];
+    let idx=0, timer=null;
+    const show=(i)=>{slides.forEach((s,j)=>s.classList.toggle('active',i===j))};
+    document.getElementById('next').onclick=()=>{idx=(idx+1)%slides.length;show(idx)};
+    document.getElementById('prev').onclick=()=>{idx=(idx-1+slides.length)%slides.length;show(idx)};
+    document.getElementById('auto').onclick=(e)=>{if(timer){clearInterval(timer);timer=null;e.target.textContent='▶ Auto';}else{timer=setInterval(()=>{idx=(idx+1)%slides.length;show(idx)},3000);e.target.textContent='⏸ Auto';}};
+
+    // Beta form
+    document.getElementById('betaForm').addEventListener('submit',e=>{e.preventDefault();alert('Thanks! You’re on the beta list.');e.target.reset()});
+  </script>
+</body>
+</html>
